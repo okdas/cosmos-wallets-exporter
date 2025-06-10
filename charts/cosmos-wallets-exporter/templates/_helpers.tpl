@@ -79,7 +79,7 @@ Process config to ensure proper data types
     {{- if $chain.denoms -}}
       {{- range $denomIndex, $denom := $chain.denoms -}}
         {{- if hasKey $denom "denom-exponent" -}}
-          {{- $_ := set $denom "denom-exponent" (int $denom.denom-exponent) -}}
+          {{- $_ := set $denom "denom-exponent" (int (index $denom "denom-exponent")) -}}
         {{- end -}}
       {{- end -}}
     {{- end -}}
