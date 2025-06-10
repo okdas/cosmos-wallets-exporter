@@ -4,3 +4,4 @@ main
 dist/
 **/.DS_Store
 cover.out
+/cosmos-wallets-exporter

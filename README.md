@@ -5,7 +5,7 @@
 ![Docker Image](https://img.shields.io/badge/docker-ghcr.io%2Fokdas%2Fcosmos--wallets--exporter-blue)
 [![Build image and push to ghcr.io](https://github.com/okdas/cosmos-wallets-exporter/actions/workflows/docker.yaml/badge.svg)](https://github.com/okdas/cosmos-wallets-exporter/actions/workflows/docker.yaml)
 
-cosmos-wallets-exporter is a Prometheus scraper that fetches the wallet balances from an LCD server exposed by a fullnode.
+cosmos-wallets-exporter is a Prometheus scraper that fetches the wallet balances from an LCD (Light Client Daemon) REST API server exposed by a fullnode.
 
 ## What can I use it for?
 
@@ -161,6 +161,16 @@ All the metrics provided by cosmos-wallets-exporter have the `cosmos_wallets_exp
 ## How can I configure it?
 
 All configuration is done via the .toml config file, which is passed to the application via the `--config` app parameter. Check `config.example.toml` for a config reference.
+
+### About LCD Endpoints
+
+**LCD (Light Client Daemon) endpoints** are the REST API servers that provide HTTP access to blockchain data. In Cosmos networks, there are typically three types of endpoints:
+
+- **LCD/REST API** (port 1317): `https://lcd-osmosis.blockapsis.com` - Used by this application
+- **RPC** (port 26657): `https://rpc-osmosis.blockapsis.com` - Tendermint consensus data
+- **gRPC** (port 9090): For programmatic access
+
+This application specifically uses LCD endpoints to query wallet balances via REST calls like `/cosmos/bank/v1beta1/balances/{address}`.
 
 ## Helm Chart Configuration
 
