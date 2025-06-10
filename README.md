@@ -162,6 +162,82 @@ All the metrics provided by cosmos-wallets-exporter have the `cosmos_wallets_exp
 
 All configuration is done via the .toml config file, which is passed to the application via the `--config` app parameter. Check `config.example.toml` for a config reference.
 
+## Helm Chart Configuration
+
+The Helm chart provides extensive configuration options through `values.yaml`. Here are some key configuration examples:
+
+### Basic Configuration with Custom Values
+
+Create a `my-values.yaml` file:
+
+```yaml
+# Custom image tag
+image:
+  tag: "main"
+
+# Application configuration  
+config:
+  listen-address: ":9550"
+  log:
+    level: "info"
+    json: false
+  chains:
+    - name: "osmosis"
+      lcd-endpoint: "https://lcd-osmosis.blockapsis.com"
+      denoms:
+        - denom: "uosmo"
+          display-denom: "osmo"
+          coingecko-currency: "osmosis"
+          denom-exponent: 6
+      wallets:
+        - address: "osmo1abc123..."
+          group: "validator"
+          name: "osmosis-validator"
+        - address: "osmo1def456..."
+          group: "restake"
+          name: "osmosis-restake"
+
+# Enable Prometheus monitoring
+serviceMonitor:
+  enabled: true
+  additionalLabels:
+    release: prometheus-operator
+
+# Resource limits
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+```
+
+Then install with:
+
+```sh
+helm install cosmos-wallets-exporter ./charts/cosmos-wallets-exporter -f my-values.yaml
+```
+
+### Available Docker Images
+
+This fork publishes Docker images to GitHub Container Registry:
+
+- `ghcr.io/okdas/cosmos-wallets-exporter:main` - Latest from main branch
+- `ghcr.io/okdas/cosmos-wallets-exporter:<commit-sha>-rc` - Development builds
+- `ghcr.io/okdas/cosmos-wallets-exporter:v<version>` - Tagged releases (when available)
+
+## Fork Differences
+
+This fork adds the following features over the original:
+
+- 🐳 **Docker Support**: Pre-built multi-architecture Docker images
+- ☸️ **Kubernetes Ready**: Production-ready Helm chart with security best practices
+- 📊 **Prometheus Integration**: Built-in ServiceMonitor and PodMonitor support
+- 🔧 **CI/CD**: Automated building and publishing of Docker images
+- 🛡️ **Security**: Non-root container execution and security contexts
+- 📈 **Monitoring**: Health checks and proper Kubernetes probes
+
 ## How can I contribute?
 
 Bug reports and feature requests are always welcome! If you want to contribute, feel free to open issues or PRs.
