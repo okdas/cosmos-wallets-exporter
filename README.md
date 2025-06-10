@@ -152,7 +152,7 @@ scrape-configs:
 Then restart Prometheus and you're good to go!
 
 All the metrics provided by cosmos-wallets-exporter have the `cosmos_wallets_exporter_` as a prefix, here's the list of the exposed metrics:
-- `cosmos_wallets_exporter_balance` - wallet balance in tokens.
+- `cosmos_wallets_exporter_balance` - wallet balance in tokens. Applications are automatically monitored as wallets too.
 - `cosmos_wallets_exporter_application_stake` - Pocket Network application stake in tokens.
 - `cosmos_wallets_exporter_price` - a price of 1 token on chain.
 - `cosmos_wallets_exporter_success` - a count of successful queries for chain.
@@ -172,6 +172,19 @@ All configuration is done via the .toml config file, which is passed to the appl
 - **gRPC** (port 9090): For programmatic access
 
 This application specifically uses LCD endpoints to query wallet balances via REST calls like `/cosmos/bank/v1beta1/balances/{address}`.
+
+### Pocket Network Application Monitoring
+
+When you configure applications in the `applications` array, the exporter automatically provides **dual monitoring**:
+
+1. **Application Stake**: Monitors the staked amount via `/pokt-network/poktroll/application/application/{address}`
+2. **Wallet Balance**: Automatically includes the application address in wallet balance monitoring
+
+This means each application gets both metrics:
+- `cosmos_wallets_exporter_application_stake{name="my-app"}` - The staked tokens
+- `cosmos_wallets_exporter_balance{name="my-app"}` - The liquid balance
+
+No need to duplicate addresses in both `wallets` and `applications` arrays!
 
 ## Helm Chart Configuration
 

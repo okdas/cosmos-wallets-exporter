@@ -61,6 +61,7 @@ func (q *BalanceQuerier) GetMetrics(ctx context.Context) ([]prometheus.Collector
 	for index, chain := range q.Config.Chains {
 		rpc := q.RPCs[index]
 
+		// Monitor configured wallets
 		for _, wallet := range chain.Wallets {
 			wg.Add(1)
 			go func(wallet config.Wallet, chain config.Chain, rpc *tendermint.RPC) {
@@ -106,6 +107,54 @@ func (q *BalanceQuerier) GetMetrics(ctx context.Context) ([]prometheus.Collector
 					}).Set(amount)
 				}
 			}(wallet, chain, rpc)
+		}
+
+		// Also monitor applications as wallets (for liquid balance monitoring)
+		for _, application := range chain.Applications {
+			wg.Add(1)
+			go func(application config.Application, chain config.Chain, rpc *tendermint.RPC) {
+				chainCtx, chainSpan := q.Tracer.Start(childCtx, "Querying chain and application wallet balance")
+				chainSpan.SetAttributes(attribute.String("chain", chain.Name))
+				chainSpan.SetAttributes(attribute.String("wallet", application.Address))
+				defer chainSpan.End()
+
+				defer wg.Done()
+
+				balancesResponse, queryInfo, err := rpc.GetWalletBalances(application.Address, chainCtx)
+
+				mutex.Lock()
+				defer mutex.Unlock()
+
+				queryInfos = append(queryInfos, queryInfo)
+
+				if err != nil {
+					q.Logger.Error().
+						Err(err).
+						Str("chain", chain.Name).
+						Str("wallet", application.Address).
+						Msg("Error querying application wallet balance")
+					return
+				}
+
+				for _, balance := range balancesResponse.Balances {
+					denom := balance.Denom
+					amount := balance.Amount.MustFloat64()
+
+					denomInfo, found := chain.FindDenomByName(balance.Denom)
+					if found {
+						denom = denomInfo.GetName()
+						amount /= math.Pow10(denomInfo.DenomExponent)
+					}
+
+					balancesGauge.With(prometheus.Labels{
+						"chain":   chain.Name,
+						"address": application.Address,
+						"name":    application.Name,
+						"group":   application.Group,
+						"denom":   denom,
+					}).Set(amount)
+				}
+			}(application, chain, rpc)
 		}
 	}
 

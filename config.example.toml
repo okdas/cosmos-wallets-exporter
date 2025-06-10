@@ -72,7 +72,9 @@ wallets = [
 
 # Pocket Network Applications (optional)
 # Each application has 3 labels: chain, group and name (similar to wallets)
-# This will monitor the stake amount for each application
+# This will monitor BOTH:
+# 1. Application stake via cosmos_wallets_exporter_application_stake metric
+# 2. Wallet balance via cosmos_wallets_exporter_balance metric (automatically added)
 applications = [
     { address = "pokt1abc123...", group = "gateway", name = "my-pocket-app" },
     { address = "pokt1def456...", group = "gateway", name = "backup-pocket-app" }

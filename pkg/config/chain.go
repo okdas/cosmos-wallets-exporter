@@ -22,8 +22,8 @@ func (c *Chain) Validate() error {
 		return errors.New("no LCD endpoint provided")
 	}
 
-	if len(c.Wallets) == 0 {
-		return errors.New("no wallets provided")
+	if len(c.Wallets) == 0 && len(c.Applications) == 0 {
+		return errors.New("no wallets or applications provided")
 	}
 
 	for index, wallet := range c.Wallets {
