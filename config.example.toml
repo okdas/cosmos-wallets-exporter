@@ -70,3 +70,11 @@ wallets = [
     { address = "sentyyyyyy", group = "restake", name = "sentinel-restake" }
 ]
 
+# Pocket Network Applications (optional)
+# Each application has 3 labels: chain, group and name (similar to wallets)
+# This will monitor the stake amount for each application
+applications = [
+    { address = "pokt1abc123...", group = "gateway", name = "my-pocket-app" },
+    { address = "pokt1def456...", group = "gateway", name = "backup-pocket-app" }
+]
+

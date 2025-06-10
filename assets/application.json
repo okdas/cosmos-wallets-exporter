@@ -1,0 +1,21 @@
+{
+    "application": {
+        "address": "pokt1abc123def456",
+        "delegatee_gateway_addresses": [
+            "pokt1gateway1",
+            "pokt1gateway2"
+        ],
+        "pending_transfer": null,
+        "pending_undelegations": {},
+        "service_configs": [
+            {
+                "service_id": "anvil"
+            }
+        ],
+        "stake": {
+            "amount": "15000000000",
+            "denom": "upokt"
+        },
+        "unstake_session_end_height": "0"
+    }
+}

@@ -130,6 +130,10 @@ config:
   #     - address: "osmo1..."
   #       group: "validator"
   #       name: "osmosis-validator"
+  #   applications: []
+  #   # - address: "pokt1..."
+  #   #   group: "gateway"
+  #   #   name: "my-pocket-app"
 
 # ServiceMonitor for Prometheus Operator
 serviceMonitor:

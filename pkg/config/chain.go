@@ -6,10 +6,11 @@ import (
 )
 
 type Chain struct {
-	Name        string      `toml:"name"`
-	LCDEndpoint string      `toml:"lcd-endpoint"`
-	Denoms      []DenomInfo `toml:"denoms"`
-	Wallets     []Wallet    `toml:"wallets"`
+	Name         string        `toml:"name"`
+	LCDEndpoint  string        `toml:"lcd-endpoint"`
+	Denoms       []DenomInfo   `toml:"denoms"`
+	Wallets      []Wallet      `toml:"wallets"`
+	Applications []Application `toml:"applications"`
 }
 
 func (c *Chain) Validate() error {
@@ -28,6 +29,12 @@ func (c *Chain) Validate() error {
 	for index, wallet := range c.Wallets {
 		if err := wallet.Validate(); err != nil {
 			return fmt.Errorf("error in wallet %d: %s", index, err)
+		}
+	}
+
+	for index, application := range c.Applications {
+		if err := application.Validate(); err != nil {
+			return fmt.Errorf("error in application %d: %s", index, err)
 		}
 	}
 

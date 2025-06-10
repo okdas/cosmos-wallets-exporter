@@ -28,6 +28,33 @@ type WalletBalanceEntry struct {
 	Balances Balances
 }
 
+type ApplicationStake struct {
+	Amount string `json:"amount"`
+	Denom  string `json:"denom"`
+}
+
+type ApplicationData struct {
+	Address                   string                   `json:"address"`
+	DelegateeGatewayAddresses []string                 `json:"delegatee_gateway_addresses"`
+	PendingTransfer           interface{}              `json:"pending_transfer"`
+	PendingUndelegations      map[string]interface{}   `json:"pending_undelegations"`
+	ServiceConfigs            []map[string]interface{} `json:"service_configs"`
+	Stake                     ApplicationStake         `json:"stake"`
+	UnstakeSessionEndHeight   string                   `json:"unstake_session_end_height"`
+}
+
+type ApplicationResponse struct {
+	Application ApplicationData `json:"application"`
+}
+
+type ApplicationStakeEntry struct {
+	Chain       string
+	Success     bool
+	Duration    time.Duration
+	Application config.Application
+	Stake       ApplicationStake
+}
+
 type QueryInfo struct {
 	Chain    string
 	Success  bool
