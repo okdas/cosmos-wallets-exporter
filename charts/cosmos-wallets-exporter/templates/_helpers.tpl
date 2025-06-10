@@ -69,11 +69,4 @@ Create image name with tag
 {{- printf "%s:%s" .Values.image.repository $tag }}
 {{- end }}
 
-{{/*
-Process config and convert to TOML with integer fix
-*/}}
-{{- define "cosmos-wallets-exporter.processedConfig" -}}
-{{- $config := deepCopy .Values.config -}}
-{{- $tomlString := $config | toToml -}}
-{{- $tomlString | regexReplaceAll "denom-exponent = ([0-9]+)\\.0" "denom-exponent = $1" -}}
-{{- end }} 
+ 

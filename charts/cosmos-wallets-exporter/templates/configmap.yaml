@@ -6,4 +6,45 @@ metadata:
     {{- include "cosmos-wallets-exporter.labels" . | nindent 4 }}
 data:
   config.toml: |
-    {{- include "cosmos-wallets-exporter.processedConfig" . | nindent 4 }} 
+    # The address (host:port) the app will listen on
+    listen-address = "{{ index .Values.config "listen-address" | default ":9550" }}"
+
+    # Logging options
+    [log]
+    level = "{{ .Values.config.log.level | default "info" }}"
+    json = {{ .Values.config.log.json | default false }}
+
+    {{- range .Values.config.chains }}
+    # Chain: {{ .name }}
+    [[chains]]
+    name = "{{ .name }}"
+    lcd-endpoint = "{{ index . "lcd-endpoint" }}"
+    {{- if index . "coingecko-currency" }}
+    coingecko-currency = "{{ index . "coingecko-currency" }}"
+    {{- end }}
+
+    {{- if .denoms }}
+    denoms = [
+    {{- range .denoms }}
+        { denom = "{{ .denom }}", display-denom = "{{ index . "display-denom" }}", coingecko-currency = "{{ index . "coingecko-currency" }}", denom-exponent = {{ index . "denom-exponent" | int }} },
+    {{- end }}
+    ]
+    {{- end }}
+
+    {{- if .wallets }}
+    wallets = [
+    {{- range .wallets }}
+        { address = "{{ .address }}", group = "{{ .group }}", name = "{{ .name }}" },
+    {{- end }}
+    ]
+    {{- end }}
+
+    {{- if .applications }}
+    applications = [
+    {{- range .applications }}
+        { address = "{{ .address }}", group = "{{ .group }}", name = "{{ .name }}" },
+    {{- end }}
+    ]
+    {{- end }}
+
+    {{- end }} 
