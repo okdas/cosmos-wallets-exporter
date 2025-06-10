@@ -6,4 +6,4 @@ metadata:
     {{- include "cosmos-wallets-exporter.labels" . | nindent 4 }}
 data:
   config.toml: |
-    {{- include "cosmos-wallets-exporter.processedConfig" . | fromYaml | toToml | nindent 4 }} 
+    {{- include "cosmos-wallets-exporter.processedConfig" . | nindent 4 }} 

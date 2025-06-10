@@ -70,20 +70,10 @@ Create image name with tag
 {{- end }}
 
 {{/*
-Process config to ensure proper data types
+Process config and convert to TOML with integer fix
 */}}
 {{- define "cosmos-wallets-exporter.processedConfig" -}}
 {{- $config := deepCopy .Values.config -}}
-{{- if $config.chains -}}
-  {{- range $chainIndex, $chain := $config.chains -}}
-    {{- if $chain.denoms -}}
-      {{- range $denomIndex, $denom := $chain.denoms -}}
-        {{- if hasKey $denom "denom-exponent" -}}
-          {{- $_ := set $denom "denom-exponent" (int (index $denom "denom-exponent")) -}}
-        {{- end -}}
-      {{- end -}}
-    {{- end -}}
-  {{- end -}}
-{{- end -}}
-{{- $config | toYaml -}}
+{{- $tomlString := $config | toToml -}}
+{{- $tomlString | regexReplaceAll "denom-exponent = ([0-9]+)\\.0" "denom-exponent = ${1}" -}}
 {{- end }} 
