@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/jarcoal/httpmock"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -61,7 +60,7 @@ func TestAppStopOperation(t *testing.T) {
 
 	app := NewApp(filesystem, "config-valid.toml", "1.2.3")
 	app.Stop()
-	assert.True(t, true)
+	// Test passes if no panic occurs
 }
 
 //nolint:paralleltest // disabled
