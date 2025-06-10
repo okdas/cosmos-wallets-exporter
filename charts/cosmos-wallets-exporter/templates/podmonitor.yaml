@@ -1,0 +1,37 @@
+{{- if .Values.podMonitor.enabled -}}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ include "cosmos-wallets-exporter.fullname" . }}
+  {{- if .Values.podMonitor.namespace }}
+  namespace: {{ .Values.podMonitor.namespace }}
+  {{- else }}
+  namespace: {{ .Release.Namespace }}
+  {{- end }}
+  labels:
+    {{- include "cosmos-wallets-exporter.labels" . | nindent 4 }}
+    {{- with .Values.podMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.podMonitor.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.podMonitor.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  podMetricsEndpoints:
+    - port: http
+      path: {{ .Values.podMonitor.path }}
+      interval: {{ .Values.podMonitor.interval }}
+      scrapeTimeout: {{ .Values.podMonitor.scrapeTimeout }}
+  selector:
+    matchLabels:
+      {{- include "cosmos-wallets-exporter.selectorLabels" . | nindent 6 }}
+  {{- if .Values.podMonitor.namespace }}
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  {{- end }}
+{{- end }} 

@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "cosmos-wallets-exporter.fullname" . }}-config
+  labels:
+    {{- include "cosmos-wallets-exporter.labels" . | nindent 4 }}
+data:
+  config.toml: |
+    {{- .Values.config | toToml | nindent 4 }} 

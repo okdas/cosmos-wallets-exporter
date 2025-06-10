@@ -1,0 +1,70 @@
+1. Get the application URL by running these commands:
+{{- if .Values.ingress.enabled }}
+{{- range $host := .Values.ingress.hosts }}
+  {{- range .paths }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+  {{- end }}
+{{- end }}
+{{- else if contains "NodePort" .Values.service.type }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "cosmos-wallets-exporter.fullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+{{- else if contains "LoadBalancer" .Values.service.type }}
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "cosmos-wallets-exporter.fullname" . }}'
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "cosmos-wallets-exporter.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo http://$SERVICE_IP:{{ .Values.service.port }}
+{{- else if contains "ClusterIP" .Values.service.type }}
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "{{ include "cosmos-wallets-exporter.selectorLabels" . }}" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+{{- end }}
+
+2. Check the metrics endpoint:
+{{- if .Values.ingress.enabled }}
+{{- range $host := .Values.ingress.hosts }}
+  {{- range .paths }}
+  curl http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}metrics
+  {{- end }}
+{{- end }}
+{{- else }}
+  # Port forward and check metrics
+  kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ include "cosmos-wallets-exporter.fullname" . }} 9550:{{ .Values.service.port }}
+  curl http://localhost:9550/metrics
+{{- end }}
+
+3. Configuration:
+   The configuration is stored in the ConfigMap: {{ include "cosmos-wallets-exporter.fullname" . }}-config
+   
+   To view the current configuration:
+   kubectl --namespace {{ .Release.Namespace }} get configmap {{ include "cosmos-wallets-exporter.fullname" . }}-config -o yaml
+
+{{- if .Values.serviceMonitor.enabled }}
+
+4. ServiceMonitor for Prometheus Operator:
+   ServiceMonitor has been created and should be automatically discovered by Prometheus if:
+   - Prometheus Operator is installed
+   - ServiceMonitor selector matches your Prometheus configuration
+{{- end }}
+
+{{- if .Values.podMonitor.enabled }}
+
+4. PodMonitor for Prometheus Operator:
+   PodMonitor has been created and should be automatically discovered by Prometheus if:
+   - Prometheus Operator is installed  
+   - PodMonitor selector matches your Prometheus configuration
+{{- end }}
+
+{{- if not (or .Values.serviceMonitor.enabled .Values.podMonitor.enabled) }}
+
+4. To enable Prometheus scraping:
+   - Set serviceMonitor.enabled=true or podMonitor.enabled=true in values.yaml
+   - Or manually configure Prometheus to scrape: http://{{ include "cosmos-wallets-exporter.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}/metrics
+{{- end }}
+
+5. Example Prometheus scrape config (if not using ServiceMonitor/PodMonitor):
+   scrape_configs:
+   - job_name: 'cosmos-wallets-exporter'
+     static_configs:
+     - targets: ['{{ include "cosmos-wallets-exporter.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}'] 

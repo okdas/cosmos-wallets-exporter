@@ -1,14 +1,71 @@
 # cosmos-wallets-exporter
 
-![Latest release](https://img.shields.io/github/v/release/QuokkaStake/cosmos-wallets-exporter)
-[![Actions Status](https://github.com/QuokkaStake/cosmos-wallets-exporter/workflows/test/badge.svg)](https://github.com/QuokkaStake/cosmos-wallets-exporter/actions)
-[![codecov](https://codecov.io/gh/QuokkaStake/cosmos-wallets-exporter/graph/badge.svg?token=PXF706HLZH)](https://codecov.io/gh/QuokkaStake/cosmos-wallets-exporter)
+> **Note**: This is a fork of [QuokkaStake/cosmos-wallets-exporter](https://github.com/QuokkaStake/cosmos-wallets-exporter) with additional Docker and Kubernetes deployment support.
+
+![Docker Image](https://img.shields.io/badge/docker-ghcr.io%2Fokdas%2Fcosmos--wallets--exporter-blue)
+[![Build image and push to ghcr.io](https://github.com/okdas/cosmos-wallets-exporter/actions/workflows/docker.yaml/badge.svg)](https://github.com/okdas/cosmos-wallets-exporter/actions/workflows/docker.yaml)
 
 cosmos-wallets-exporter is a Prometheus scraper that fetches the wallet balances from an LCD server exposed by a fullnode.
 
 ## What can I use it for?
 
 If you have a wallet that does transactions on an app's behalf without your interaction and will stop working correctly if it cannot broadcast transactions anymore due to zero balance and not enough tokens to pay for transaction fee (some examples: Axelar's broadcaster; Sentinel's dVPN node; ReStake's bot wallets; faucets), you can use this tool to scrape the balances to Prometheus and build alerts if a wallet balance falls under a specific threshold.
+
+## Quick Start with Docker
+
+The easiest way to get started is using our pre-built Docker image:
+
+```sh
+# Pull the latest image
+docker pull ghcr.io/okdas/cosmos-wallets-exporter:main
+
+# Create a config file (see config.example.toml for reference)
+cp config.example.toml my-config.toml
+# Edit my-config.toml with your chains and wallets...
+
+# Run the container
+docker run -d \
+  --name cosmos-wallets-exporter \
+  -p 9550:9550 \
+  -v $(pwd)/my-config.toml:/app/config.toml \
+  ghcr.io/okdas/cosmos-wallets-exporter:main --config /app/config.toml
+```
+
+## Kubernetes Deployment with Helm
+
+This fork includes a Helm chart for easy Kubernetes deployment:
+
+```sh
+# Clone this repository
+git clone https://github.com/okdas/cosmos-wallets-exporter.git
+cd cosmos-wallets-exporter
+
+# Install with Helm
+helm install cosmos-wallets-exporter ./charts/cosmos-wallets-exporter \
+  --set config.chains[0].name="osmosis" \
+  --set config.chains[0].lcd-endpoint="https://lcd-osmosis.blockapsis.com" \
+  --set config.chains[0].denoms[0].denom="uosmo" \
+  --set config.chains[0].denoms[0].display-denom="osmo" \
+  --set config.chains[0].denoms[0].coingecko-currency="osmosis" \
+  --set config.chains[0].wallets[0].address="osmo1..." \
+  --set config.chains[0].wallets[0].group="validator" \
+  --set config.chains[0].wallets[0].name="my-osmosis-wallet"
+
+# Or create a custom values.yaml file
+helm install cosmos-wallets-exporter ./charts/cosmos-wallets-exporter -f my-values.yaml
+```
+
+### Enable Prometheus Monitoring
+
+To enable automatic Prometheus scraping with Prometheus Operator:
+
+```sh
+helm upgrade cosmos-wallets-exporter ./charts/cosmos-wallets-exporter \
+  --set serviceMonitor.enabled=true \
+  --set serviceMonitor.additionalLabels.release=prometheus-operator
+```
+
+## Manual Installation
 
 ## How can I set it up?
 
@@ -20,9 +77,9 @@ tar xvfz <file you just downloaded>
 ./cosmos-wallets-exporter
 ```
 
-Alternatively, you can build it from source (golang >= 1.18 is required):
+Alternatively, you can build it from source (golang >= 1.21 is required):
 ```sh
-git clone https://github.com/QuokkaStake/cosmos-wallets-exporter.git
+git clone https://github.com/okdas/cosmos-wallets-exporter.git
 cd cosmos-wallets-exporter
 # Either build it (this will put the resulting binary into the current folder)...
 make build

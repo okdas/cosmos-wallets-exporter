@@ -1,7 +1,6 @@
 config.toml
 main
 .idea/
-cosmos-wallets-exporter
 dist/
 **/.DS_Store
 cover.out
