@@ -1,0 +1,36 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+LICENSE.md
+
+# Development files
+.golangci.yml
+.goreleaser.yml
+
+# Test files
+*_test.go
+cover.out
+
+# CI/CD
+.github
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts (if any)
+dist/
+build/
+
+# Docker files themselves
+Dockerfile
+.dockerignore 
