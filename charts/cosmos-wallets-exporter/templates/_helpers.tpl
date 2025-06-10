@@ -67,4 +67,23 @@ Create image name with tag
 {{- define "cosmos-wallets-exporter.image" -}}
 {{- $tag := .Values.image.tag | default .Chart.AppVersion }}
 {{- printf "%s:%s" .Values.image.repository $tag }}
+{{- end }}
+
+{{/*
+Process config to ensure proper data types
+*/}}
+{{- define "cosmos-wallets-exporter.processedConfig" -}}
+{{- $config := deepCopy .Values.config -}}
+{{- if $config.chains -}}
+  {{- range $chainIndex, $chain := $config.chains -}}
+    {{- if $chain.denoms -}}
+      {{- range $denomIndex, $denom := $chain.denoms -}}
+        {{- if hasKey $denom "denom-exponent" -}}
+          {{- $_ := set $denom "denom-exponent" (int $denom.denom-exponent) -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $config | toYaml -}}
 {{- end }} 
