@@ -6,12 +6,13 @@ import (
 )
 
 type Chain struct {
-	Name         string        `toml:"name"`
-	LCDEndpoint  string        `toml:"lcd-endpoint"`
-	Denoms       []DenomInfo   `toml:"denoms"`
-	Wallets      []Wallet      `toml:"wallets"`
-	Applications []Application `toml:"applications"`
-	Suppliers    []Supplier    `toml:"suppliers"`
+	Name                    string        `toml:"name"`
+	LCDEndpoint             string        `toml:"lcd-endpoint"`
+	Denoms                  []DenomInfo   `toml:"denoms"`
+	Wallets                 []Wallet      `toml:"wallets"`
+	Applications            []Application `toml:"applications"`
+	Suppliers               []Supplier    `toml:"suppliers"`
+	RevShareDetailedMetrics *bool         `toml:"rev-share-detailed-metrics"`
 }
 
 func (c *Chain) Validate() error {
@@ -56,4 +57,11 @@ func (c *Chain) FindDenomByName(denom string) (*DenomInfo, bool) {
 	}
 
 	return nil, false
+}
+
+func (c *Chain) IsRevShareDetailedMetricsEnabled() bool {
+	if c.RevShareDetailedMetrics == nil {
+		return true // Default to detailed metrics for backward compatibility
+	}
+	return *c.RevShareDetailedMetrics
 }

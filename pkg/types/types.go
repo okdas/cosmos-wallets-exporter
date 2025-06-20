@@ -60,13 +60,42 @@ type SupplierStake struct {
 	Denom  string `json:"denom"`
 }
 
+type RevShare struct {
+	Address            string `json:"address"`
+	RevSharePercentage string `json:"rev_share_percentage"`
+}
+
+type ServiceConfig struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
+type ServiceEndpoint struct {
+	Configs []ServiceConfig `json:"configs"`
+	RpcType string          `json:"rpc_type"`
+	URL     string          `json:"url"`
+}
+
+type Service struct {
+	Endpoints []ServiceEndpoint `json:"endpoints"`
+	RevShare  []RevShare        `json:"rev_share"`
+	ServiceID string            `json:"service_id"`
+}
+
+type ServiceConfigHistoryEntry struct {
+	ActivationHeight   string  `json:"activation_height"`
+	DeactivationHeight string  `json:"deactivation_height"`
+	OperatorAddress    string  `json:"operator_address"`
+	Service            Service `json:"service"`
+}
+
 type SupplierData struct {
-	OperatorAddress         string                   `json:"operator_address"`
-	OwnerAddress            string                   `json:"owner_address"`
-	ServiceConfigHistory    []map[string]interface{} `json:"service_config_history"`
-	Services                []map[string]interface{} `json:"services"`
-	Stake                   SupplierStake            `json:"stake"`
-	UnstakeSessionEndHeight string                   `json:"unstake_session_end_height"`
+	OperatorAddress         string                      `json:"operator_address"`
+	OwnerAddress            string                      `json:"owner_address"`
+	ServiceConfigHistory    []ServiceConfigHistoryEntry `json:"service_config_history"`
+	Services                []Service                   `json:"services"`
+	Stake                   SupplierStake               `json:"stake"`
+	UnstakeSessionEndHeight string                      `json:"unstake_session_end_height"`
 }
 
 type SupplierResponse struct {
@@ -79,6 +108,24 @@ type SupplierStakeEntry struct {
 	Duration time.Duration
 	Supplier config.Supplier
 	Stake    SupplierStake
+}
+
+type RevShareMetadata struct {
+	Chain                string
+	SupplierOperatorAddr string
+	SupplierOwnerAddr    string
+	SupplierName         string
+	ServiceID            string
+	RevSharePercentage   string
+	DetailedMetrics      bool
+}
+
+type RevShareAggregateKey struct {
+	Chain                string
+	SupplierOperatorAddr string
+	SupplierOwnerAddr    string
+	SupplierName         string
+	RevShareAddress      string
 }
 
 type QueryInfo struct {

@@ -70,6 +70,10 @@ wallets = [
     { address = "sentyyyyyy", group = "restake", name = "sentinel-restake" }
 ]
 
+# Optional: Control revenue share metric granularity (defaults to true for detailed metrics)
+# Set to false to aggregate rev share balances and reduce metric cardinality
+# rev-share-detailed-metrics = false
+
 # Pocket Network Applications (optional)
 # Each application has 3 labels: chain, group and name (similar to wallets)
 # This will monitor BOTH:
@@ -82,9 +86,12 @@ applications = [
 
 # Pocket Network Suppliers (optional)
 # Each supplier has 3 labels: chain, group and name (similar to wallets and applications)
-# This will monitor BOTH:
+# This will monitor THREE things:
 # 1. Supplier stake via cosmos_wallets_exporter_supplier_stake metric
 # 2. Wallet balance via cosmos_wallets_exporter_balance metric (automatically added)
+# 3. Revenue share balances (automatically discovers and monitors all rev_share addresses from supplier services):
+#    - cosmos_wallets_exporter_supplier_rev_share_balance (aggregated - default)
+#    - cosmos_wallets_exporter_supplier_rev_share_balance_detailed (per service/percentage - if enabled)
 suppliers = [
     { address = "pokt1xyz789...", group = "supplier", name = "my-pocket-supplier" },
     { address = "pokt1uvw012...", group = "supplier", name = "backup-pocket-supplier" }

@@ -138,6 +138,8 @@ config:
   #   # - address: "pokt1..."
   #   #   group: "supplier"
   #   #   name: "my-pocket-supplier"
+  #   # Optional: Control revenue share metric granularity (defaults to true)
+  #   # rev-share-detailed-metrics: false
 
 # ServiceMonitor for Prometheus Operator
 serviceMonitor:

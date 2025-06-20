@@ -55,4 +55,8 @@ data:
     ]
     {{- end }}
 
+    {{- if hasKey . "rev-share-detailed-metrics" }}
+    rev-share-detailed-metrics = {{ index . "rev-share-detailed-metrics" }}
+    {{- end }}
+
     {{- end }} 

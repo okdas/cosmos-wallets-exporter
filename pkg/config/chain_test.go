@@ -31,7 +31,7 @@ func TestChainNoWallets(t *testing.T) {
 	chain := &Chain{Name: "chain", LCDEndpoint: "test"}
 	err := chain.Validate()
 	require.Error(t, err)
-	require.ErrorContains(t, err, "no wallets provided")
+	require.ErrorContains(t, err, "no wallets, applications, or suppliers provided")
 }
 
 func TestChainInvalidWallet(t *testing.T) {

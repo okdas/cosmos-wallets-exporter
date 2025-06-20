@@ -103,6 +103,8 @@ This exporter includes custom logic for monitoring Pocket Network entities like 
 3. **Metrics Generated**:
    - `cosmos_wallets_exporter_supplier_stake` - Staked/bonded POKT tokens
    - `cosmos_wallets_exporter_balance` - Liquid/available POKT tokens
+   - `cosmos_wallets_exporter_supplier_rev_share_balance` - Aggregated balance of revenue share addresses (default)
+   - `cosmos_wallets_exporter_supplier_rev_share_balance_detailed` - Detailed balance per service and percentage (optional)
 
 ### Implementation Details
 - **Application Querier** (`/pkg/queriers/application.go`): Fetches application stake data
@@ -123,8 +125,47 @@ This exporter includes custom logic for monitoring Pocket Network entities like 
 - `stake`: Contains `amount` and `denom` for staked tokens
 - `operator_address`: Operator address of the supplier
 - `owner_address`: Owner address of the supplier
-- `services`: Services the supplier provides
+- `services`: Services the supplier provides, including revenue share configurations
 - `unstake_session_end_height`: Unstaking status
+
+### Revenue Share Monitoring
+
+The supplier querier also monitors revenue share balances with configurable granularity:
+
+#### Configuration Option
+```toml
+[[chains]]
+name = "poktroll"
+lcd-endpoint = "https://your-pokt-lcd-endpoint"
+rev-share-detailed-metrics = false  # Optional: defaults to true for backward compatibility
+```
+
+#### Metric Types
+- **Aggregated (default)**: `cosmos_wallets_exporter_supplier_rev_share_balance` - Sums balances across all services for each rev share address
+- **Detailed (optional)**: `cosmos_wallets_exporter_supplier_rev_share_balance_detailed` - Separate metrics per service and percentage
+
+#### Features
+- **Automatic Discovery**: Rev share addresses are extracted from supplier service configurations
+- **Deduplication**: Each unique rev share address is queried only once, even if shared across multiple suppliers/services
+- **Configurable Granularity**: Choose between detailed or aggregated metrics to control cardinality
+- **Three-Phase Process**:
+  1. **Collection**: Gather supplier data and collect all rev share addresses
+  2. **Deduplication**: Query balance for each unique rev share address once
+  3. **Metric Creation**: Generate detailed or aggregated metrics based on configuration
+
+#### Metric Labels
+**Aggregated metrics** (`cosmos_wallets_exporter_supplier_rev_share_balance`):
+- `chain`: Chain name
+- `supplier_operator_address`: Supplier's operator address
+- `supplier_owner_address`: Supplier's owner address
+- `supplier_name`: Supplier's configured name
+- `rev_share_address`: Revenue share recipient address
+- `denom`: Token denomination
+
+**Detailed metrics** (`cosmos_wallets_exporter_supplier_rev_share_balance_detailed`):
+- All aggregated labels plus:
+- `service_id`: Associated service ID
+- `rev_share_percentage`: Percentage of revenue share
 
 ### Extensibility
 The architecture is designed to easily add more Pocket Network entities:
