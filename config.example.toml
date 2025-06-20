@@ -80,3 +80,13 @@ applications = [
     { address = "pokt1def456...", group = "gateway", name = "backup-pocket-app" }
 ]
 
+# Pocket Network Suppliers (optional)
+# Each supplier has 3 labels: chain, group and name (similar to wallets and applications)
+# This will monitor BOTH:
+# 1. Supplier stake via cosmos_wallets_exporter_supplier_stake metric
+# 2. Wallet balance via cosmos_wallets_exporter_balance metric (automatically added)
+suppliers = [
+    { address = "pokt1xyz789...", group = "supplier", name = "my-pocket-supplier" },
+    { address = "pokt1uvw012...", group = "supplier", name = "backup-pocket-supplier" }
+]
+

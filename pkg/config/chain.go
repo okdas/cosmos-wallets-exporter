@@ -11,6 +11,7 @@ type Chain struct {
 	Denoms       []DenomInfo   `toml:"denoms"`
 	Wallets      []Wallet      `toml:"wallets"`
 	Applications []Application `toml:"applications"`
+	Suppliers    []Supplier    `toml:"suppliers"`
 }
 
 func (c *Chain) Validate() error {
@@ -22,8 +23,8 @@ func (c *Chain) Validate() error {
 		return errors.New("no LCD endpoint provided")
 	}
 
-	if len(c.Wallets) == 0 && len(c.Applications) == 0 {
-		return errors.New("no wallets or applications provided")
+	if len(c.Wallets) == 0 && len(c.Applications) == 0 && len(c.Suppliers) == 0 {
+		return errors.New("no wallets, applications, or suppliers provided")
 	}
 
 	for index, wallet := range c.Wallets {
@@ -35,6 +36,12 @@ func (c *Chain) Validate() error {
 	for index, application := range c.Applications {
 		if err := application.Validate(); err != nil {
 			return fmt.Errorf("error in application %d: %s", index, err)
+		}
+	}
+
+	for index, supplier := range c.Suppliers {
+		if err := supplier.Validate(); err != nil {
+			return fmt.Errorf("error in supplier %d: %s", index, err)
 		}
 	}
 

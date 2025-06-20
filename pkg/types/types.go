@@ -55,6 +55,32 @@ type ApplicationStakeEntry struct {
 	Stake       ApplicationStake
 }
 
+type SupplierStake struct {
+	Amount string `json:"amount"`
+	Denom  string `json:"denom"`
+}
+
+type SupplierData struct {
+	OperatorAddress         string                   `json:"operator_address"`
+	OwnerAddress            string                   `json:"owner_address"`
+	ServiceConfigHistory    []map[string]interface{} `json:"service_config_history"`
+	Services                []map[string]interface{} `json:"services"`
+	Stake                   SupplierStake            `json:"stake"`
+	UnstakeSessionEndHeight string                   `json:"unstake_session_end_height"`
+}
+
+type SupplierResponse struct {
+	Supplier SupplierData `json:"supplier"`
+}
+
+type SupplierStakeEntry struct {
+	Chain    string
+	Success  bool
+	Duration time.Duration
+	Supplier config.Supplier
+	Stake    SupplierStake
+}
+
 type QueryInfo struct {
 	Chain    string
 	Success  bool

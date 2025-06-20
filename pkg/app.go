@@ -50,6 +50,7 @@ func NewApp(filesystem fs.FS, configPath string, version string) *App {
 		queriersPkg.NewPriceQuerier(appConfig, coingecko, tracer),
 		queriersPkg.NewBalanceQuerier(appConfig, log, tracer),
 		queriersPkg.NewApplicationQuerier(appConfig, log, tracer),
+		queriersPkg.NewSupplierQuerier(appConfig, log, tracer),
 		queriersPkg.NewUptimeQuerier(tracer),
 	}
 

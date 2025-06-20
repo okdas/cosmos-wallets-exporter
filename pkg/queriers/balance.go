@@ -156,6 +156,54 @@ func (q *BalanceQuerier) GetMetrics(ctx context.Context) ([]prometheus.Collector
 				}
 			}(application, chain, rpc)
 		}
+
+		// Also monitor suppliers as wallets (for liquid balance monitoring)
+		for _, supplier := range chain.Suppliers {
+			wg.Add(1)
+			go func(supplier config.Supplier, chain config.Chain, rpc *tendermint.RPC) {
+				chainCtx, chainSpan := q.Tracer.Start(childCtx, "Querying chain and supplier wallet balance")
+				chainSpan.SetAttributes(attribute.String("chain", chain.Name))
+				chainSpan.SetAttributes(attribute.String("wallet", supplier.Address))
+				defer chainSpan.End()
+
+				defer wg.Done()
+
+				balancesResponse, queryInfo, err := rpc.GetWalletBalances(supplier.Address, chainCtx)
+
+				mutex.Lock()
+				defer mutex.Unlock()
+
+				queryInfos = append(queryInfos, queryInfo)
+
+				if err != nil {
+					q.Logger.Error().
+						Err(err).
+						Str("chain", chain.Name).
+						Str("wallet", supplier.Address).
+						Msg("Error querying supplier wallet balance")
+					return
+				}
+
+				for _, balance := range balancesResponse.Balances {
+					denom := balance.Denom
+					amount := balance.Amount.MustFloat64()
+
+					denomInfo, found := chain.FindDenomByName(balance.Denom)
+					if found {
+						denom = denomInfo.GetName()
+						amount /= math.Pow10(denomInfo.DenomExponent)
+					}
+
+					balancesGauge.With(prometheus.Labels{
+						"chain":   chain.Name,
+						"address": supplier.Address,
+						"name":    supplier.Name,
+						"group":   supplier.Group,
+						"denom":   denom,
+					}).Set(amount)
+				}
+			}(supplier, chain, rpc)
+		}
 	}
 
 	wg.Wait()
